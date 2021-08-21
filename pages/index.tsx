@@ -1,22 +1,25 @@
 import Head from "next/head";
+import { useRef } from "react";
 import { Center, Box, Input } from "@chakra-ui/react";
 
 import DynamicText from "components/DynamicText";
 
 const Home = () => {
+  const updateDynamicRef = useRef(null);
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
+    updateDynamicRef.current(e.target.value);
   };
 
   return (
-    <Center h="100vh">
+    <Center h="100vh" px="12">
       <Head>
         <title>Coding Test</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <Box as="main">
-        <DynamicText />
+        <DynamicText ref={updateDynamicRef} />
         <Input onChange={onChange} />
       </Box>
     </Center>
