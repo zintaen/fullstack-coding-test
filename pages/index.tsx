@@ -5,6 +5,7 @@ import { GetServerSidePropsContext, GetServerSideProps } from "next";
 
 import { serverAuthenticate } from 'helpers/authServer';
 import DynamicText from "components/DynamicText";
+import AuthenticatedLayout from 'components/layouts/Authenticated';
 
 const Home = () => {
   const updateDynamicRef = useRef(null);
@@ -14,17 +15,20 @@ const Home = () => {
   };
 
   return (
-    <Center h="100vh" px="12">
+    <>
       <Head>
         <title>Coding Test</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <Box as="main">
-        <DynamicText ref={updateDynamicRef} />
-        <Input onChange={onChange} />
-      </Box>
-    </Center>
+      <AuthenticatedLayout>
+        <Center h="100vh" px="12">
+          <Box as="main">
+            <DynamicText ref={updateDynamicRef} />
+            <Input onChange={onChange} />
+          </Box>
+        </Center>
+      </AuthenticatedLayout>
+    </>
   );
 };
 

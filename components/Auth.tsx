@@ -10,6 +10,8 @@ type ContextValues = {
   user: null | Record<string, unknown>;
   register: (email: string, password: string) => void;
   login: (email: string, password: string) => void;
+  logout: () => void;
+  hasToken: () => boolean;
 } | null
 
 const AuthContext = createContext<ContextValues>(null);
@@ -63,9 +65,19 @@ export const AuthProvider: FC = ({ children }) => {
         alert(message);
       });
   }
+  
+  const logout = async () => {
+    firebase.auth().signOut();
+    router.replace('/login');
+  };
+
+  const hasToken = () => {
+    const cookies = nookies.get();
+    return Boolean(cookies.token);
+  }
 
   return (
-    <AuthContext.Provider value={{ user, register, login }}>
+    <AuthContext.Provider value={{ user, register, login, logout, hasToken }}>
       {children}
     </AuthContext.Provider>
   );
