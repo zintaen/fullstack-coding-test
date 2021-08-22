@@ -1,27 +1,39 @@
-import { FC, useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { InputGroup, InputRightElement, Input, Center, VStack, Heading, Button, Text, Box } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
+import { FC, useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import {
+  InputGroup,
+  InputRightElement,
+  Input,
+  Center,
+  VStack,
+  Heading,
+  Button,
+  Text,
+  Box,
+  Link as LinkUI,
+} from "@chakra-ui/react";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
-import { FORM_MESSAGES } from 'constant';
-import { useAuth } from 'components/Auth';
+import { FORM_MESSAGES } from "constant";
+import { useAuth } from "components/Auth";
 
 type Fields = {
   email: string;
   password: string;
-}
+};
 
 const LoginPage: FC = () => {
-  const { login, isReady } = useAuth();
+  const { login, isReady } = useAuth({});
   const router = useRouter();
 
   const [reveal, setReveal] = useState<boolean>(false);
 
   const { handleSubmit, formState, register } = useForm<Fields>({
     defaultValues: {
-      email: '',
-      password: '',
-    }
+      email: "",
+      password: "",
+    },
   });
 
   const submitHandler: SubmitHandler<Fields> = async ({ email, password }) => {
@@ -43,13 +55,17 @@ const LoginPage: FC = () => {
           <Input
             isInvalid={Boolean(errors.email?.message)}
             placeholder="example@gmail.com"
-            {...register('email', { required: {
-              value: true,
-              message: FORM_MESSAGES.ERRORS.REQUIRED
-            }})}
+            {...register("email", {
+              required: {
+                value: true,
+                message: FORM_MESSAGES.ERRORS.REQUIRED,
+              },
+            })}
           />
           {errors.email?.message && (
-            <Text mt="2" fontSize="sm" color="red.600">{errors.email?.message}</Text>
+            <Text mt="2" fontSize="sm" color="red.600">
+              {errors.email?.message}
+            </Text>
           )}
         </Box>
 
@@ -60,19 +76,27 @@ const LoginPage: FC = () => {
               type={reveal ? "text" : "password"}
               placeholder="Enter password"
               isInvalid={Boolean(errors.password?.message)}
-              {...register('password', { required: {
-                value: true,
-                message: FORM_MESSAGES.ERRORS.REQUIRED
-              }})}
+              {...register("password", {
+                required: {
+                  value: true,
+                  message: FORM_MESSAGES.ERRORS.REQUIRED,
+                },
+              })}
             />
             <InputRightElement width="4.5rem">
-              <Button h="1.75rem" size="sm" onClick={() => setReveal((prevState) => !prevState)}>
+              <Button
+                h="1.75rem"
+                size="sm"
+                onClick={() => setReveal((prevState) => !prevState)}
+              >
                 {reveal ? "Hide" : "Show"}
               </Button>
             </InputRightElement>
           </InputGroup>
           {errors.password?.message && (
-            <Text mt="2" fontSize="sm" color="red.600">{errors.password?.message}</Text>
+            <Text mt="2" fontSize="sm" color="red.600">
+              {errors.password?.message}
+            </Text>
           )}
         </Box>
 
@@ -84,10 +108,14 @@ const LoginPage: FC = () => {
         >
           Submit
         </Button>
-        
-        <Button w="100%" onClick={() => router.push('/register')}>
+
+        <Button w="100%" onClick={() => router.push("/register")}>
           or Register
         </Button>
+
+        <Link href="/blog">
+          <LinkUI as="a">View our blogs</LinkUI>
+        </Link>
       </VStack>
     </Center>
   );

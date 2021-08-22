@@ -10,4 +10,6 @@ const FIREBASE_CONFIG = {
 
 const apps = getApps();
 
-export let firebaseApp = apps.length ? apps[0] : initializeApp(FIREBASE_CONFIG);
+export const firebaseApp = apps.length
+  ? apps[0]
+  : initializeApp(FIREBASE_CONFIG);

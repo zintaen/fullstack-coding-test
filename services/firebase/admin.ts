@@ -2,7 +2,7 @@ import admin, { ServiceAccount } from 'firebase-admin';
 
 import creds from './creds.json';
 
-export const verifyIdToken = (token) => {
+export const verifyIdToken = async (token: string) => {
   if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(creds as ServiceAccount),

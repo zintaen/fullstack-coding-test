@@ -84,12 +84,21 @@ const api = axios.create({
 
 const exceptedRoutes = ["/login", "/register"];
 
-export const useAuth = () => {
+type UseAuthProps = {
+  authProtect?: boolean;
+};
+
+export const useAuth = ({ authProtect = true }: UseAuthProps) => {
   const contextValue = useContext(AuthContext);
   const router = useRouter();
   const [isReady, setIsReady] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!authProtect) {
+      setIsReady(true);
+      return;
+    }
+
     const isExceptPage = exceptedRoutes.includes(router.pathname);
 
     const checkAuth = async () => {
@@ -102,6 +111,7 @@ export const useAuth = () => {
         setIsReady(true);
       }
     };
+
     checkAuth();
   }, []);
 

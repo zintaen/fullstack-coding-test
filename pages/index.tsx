@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { Center, Box, Input } from "@chakra-ui/react";
 
 import DynamicText from "components/DynamicText";
-import Main from 'components/layouts/Main';
+import MainLayout from 'components/layouts/Main';
 
 const Home = () => {
   const updateDynamicRef = useRef(null);
@@ -16,16 +16,15 @@ const Home = () => {
     <>
       <Head>
         <title>Coding Test</title>
-        <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Main>
+      <MainLayout>
         <Center h="100vh" px="12">
           <Box as="main">
             <DynamicText ref={updateDynamicRef} />
             <Input onChange={onChange} />
           </Box>
         </Center>
-      </Main>
+      </MainLayout>
     </>
   );
 };

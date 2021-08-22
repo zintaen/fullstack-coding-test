@@ -1,11 +1,15 @@
-import { Flex, Button, HStack, Link as LinkUI } from '@chakra-ui/react';
-import { FC } from 'react';
-import Link from 'next/link';
+import { Flex, Button, HStack, Box, Link as LinkUI } from "@chakra-ui/react";
+import { FC } from "react";
+import Link from "next/link";
 
-import { useAuth } from 'components/Auth';
+import { useAuth } from "components/Auth";
 
-const AuthenticatedLayout: FC = ({ children }) => {
-  const { logout, isReady } = useAuth();
+type Props = {
+  authProtect?: boolean;
+};
+
+const AuthenticatedLayout: FC<Props> = ({ children, authProtect = true }) => {
+  const { user, logout, isReady } = useAuth({ authProtect });
 
   if (!isReady) {
     return null;
@@ -13,17 +17,30 @@ const AuthenticatedLayout: FC = ({ children }) => {
 
   return (
     <>
-      <Flex position="fixed" top={0} left={0} right={0} p={4} width="full" justifyContent="flex-end" alignItems="center">
+      <Flex
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        p={4}
+        width="full"
+        justifyContent="flex-end"
+        alignItems="center"
+        bg="white"
+        boxShadow="sm"
+        zIndex={1000}
+      >
         <HStack spacing={6}>
-          <Link href="/blog">
-            <LinkUI as="a">
-              Blogs
-            </LinkUI>
+          <Link href="/">
+            <LinkUI as="a">Dynamic search</LinkUI>
           </Link>
-          <Button onClick={logout}>Logout</Button>
+          <Link href="/blog">
+            <LinkUI as="a">Blogs</LinkUI>
+          </Link>
+          {user && <Button onClick={logout}>Logout</Button>}
         </HStack>
       </Flex>
-      {children}
+      <Box mt={16}>{children}</Box>
     </>
   );
 };
