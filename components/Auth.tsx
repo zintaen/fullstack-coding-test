@@ -1,89 +1,109 @@
-import { FC, createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import nookies from 'nookies';
-import firebase from 'firebase/app';
-import "firebase/auth";
+import nookies from "nookies";
+import axios from "axios";
+import { FC, createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  getIdToken,
+} from "firebase/auth";
 
-import { initFirebaseClient } from 'services/firebase/client';
+import "services/firebase/client";
 
 type ContextValues = {
   user: null | Record<string, unknown>;
   register: (email: string, password: string) => void;
   login: (email: string, password: string) => void;
   logout: () => void;
-  hasToken: () => boolean;
-} | null
+} | null;
 
 const AuthContext = createContext<ContextValues>(null);
 
 export const AuthProvider: FC = ({ children }) => {
-  initFirebaseClient();
-
   const router = useRouter();
   const [user, setUser] = useState(null);
 
+  const auth = getAuth();
+
   useEffect(() => {
-    return firebase.auth().onIdTokenChanged(async (user) => {
-      // expired or unauthenticated
-      if (!user) {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUser(user);
+        const token = await getIdToken(user);
+        nookies.set(null, "token", token);
+      } else {
         setUser(null);
-        nookies.set(null, "token", "");
-        return;
+        nookies.destroy(null, "token");
       }
-      // success to authenticate
-      setUser(user);
-      const token = await user.getIdToken();
-      nookies.set(null, "token", token);
     });
   }, []);
 
   const register = async (email: string, password: string) => {
-    await firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(async (data) => {
-        setUser(data.user);
-        const token = await data.user.getIdToken();
+    await createUserWithEmailAndPassword(auth, email, password)
+      .then(async (creds) => {
+        setUser(creds.user);
+        const token = await creds.user.getIdToken();
         nookies.set(null, "token", token);
-        router.replace('/');
+        router.replace("/");
       })
-      .catch(err => {
+      .catch((err) => {
         const message = err.message;
         alert(message);
       });
-  }
-
-  const login = async (email: string, password: string) => {
-    await firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        router.replace('/');
-      })
-      .catch(err => {
-        const message = err.message;
-        alert(message);
-      });
-  }
-  
-  const logout = async () => {
-    firebase.auth().signOut();
-    router.replace('/login');
   };
 
-  const hasToken = () => {
-    const cookies = nookies.get();
-    return Boolean(cookies.token);
-  }
+  const login = async (email: string, password: string) => {
+    await signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        router.replace("/");
+      })
+      .catch((err) => {
+        const message = err.message;
+        alert(message);
+      });
+  };
+
+  const logout = async () => {
+    await signOut(auth);
+    router.replace("/login");
+  };
 
   return (
-    <AuthContext.Provider value={{ user, register, login, logout, hasToken }}>
+    <AuthContext.Provider value={{ user, register, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+const api = axios.create({
+  baseURL: "/api/auth-verify",
+});
+
+const exceptedRoutes = ["/login", "/register"];
+
 export const useAuth = () => {
   const contextValue = useContext(AuthContext);
-  return contextValue;
+  const router = useRouter();
+  const [isReady, setIsReady] = useState<boolean>(false);
+
+  useEffect(() => {
+    const isExceptPage = exceptedRoutes.includes(router.pathname);
+
+    const checkAuth = async () => {
+      const { data } = await api.get("");
+      if (!data.success && !isExceptPage) {
+        router.replace("/login");
+      } else if (data.success && isExceptPage) {
+        router.replace("/");
+      } else {
+        setIsReady(true);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  return { ...contextValue, isReady };
 };

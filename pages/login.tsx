@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { InputGroup, InputRightElement, Input, Center, VStack, Heading, Button, Text, Box } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
@@ -12,10 +12,9 @@ type Fields = {
 }
 
 const LoginPage: FC = () => {
-  const { login, hasToken } = useAuth();
+  const { login, isReady } = useAuth();
   const router = useRouter();
-  
-  const [isReady, setIsReady] = useState<boolean>(false);
+
   const [reveal, setReveal] = useState<boolean>(false);
 
   const { handleSubmit, formState, register } = useForm<Fields>({
@@ -29,19 +28,11 @@ const LoginPage: FC = () => {
     login(email, password);
   };
 
-  useEffect(() => {
-    if(hasToken()) {
-      router.push('/');
-    } else {
-      setIsReady(true);
-    }
-  },  []);
+  const { errors, isDirty } = formState;
 
   if (!isReady) {
     return null;
   }
-
-  const { errors, isDirty } = formState;
 
   return (
     <Center h="100vh">
